@@ -171,7 +171,9 @@ def get_response(memory, question):
 
 ### 启动系统
 ```bash
-streamlit run spider/main.py
+source .venv/bin/activate  # Linux/macOS
+或 .venv\Scripts\activate  # Windows
+streamlit run main.py
 ```
 
 ### 操作流程
