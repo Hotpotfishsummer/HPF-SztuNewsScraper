@@ -1,189 +1,100 @@
-# NewsSpider - 智能新闻爬取与问答系统
+# SZTU 新闻爬虫
 
-一个基于Python的智能新闻爬取系统，专门用于爬取深圳技术大学公文通网站新闻内容，并提供智能问答功能。
+一个基于Python的新闻爬取系统，专门用于爬取深圳技术大学公文通网站新闻内容。
 
 ## 功能特性
 
-- 📰 自动爬取新闻内容
-- 📄 生成PDF文档
-- 🤖 基于AI的智能问答
-- 🌐 友好的Web界面
-- 🔒 安全的配置管理
+- 📰 自动爬取新闻列表和完整内容
+- 🔍 智能索引管理，避免重复爬取
+- 💾 本地缓存管理，支持离线浏览
+- 🌐 Streamlit Web界面，美观易用
+- 🔐 安全的文件管理和权限控制
 
 ## 安装指南
 
 ### 1. 克隆项目
 ```bash
-git clone <repository-url>
-cd NewsSpider
+git clone https://github.com/Hotpotfishsummer/HPF-SztuNewsScraper.git
+cd HPF-SztuNewsScraper
 ```
 
-### 2. 创建虚拟环境
+### 2. 使用Conda创建环境（推荐）
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# 或 .venv\Scripts\activate  # Windows
+conda env create -f environment.yml
+conda activate hpf-sztu-scraper
 ```
 
-### 3. 安装依赖
+或使用pip安装依赖：
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. 配置环境
-```bash
-# 复制配置文件模板
-cp config.py.template config.py
-
-# 编辑 config.py 文件，填写您的配置信息
-```
-
-
-## 配置说明
-
-在 `config.py` 中配置以下参数：
-
-这里使用的是google的GEMINI-2.5-pro和text-embedding-004。
-
-```python
-# 网络代理端口(根据实际软件端口配置)
-os.environ["http_proxy"] = "http://127.0.0.1:xxxx"
-os.environ["https_proxy"] = "http://127.0.0.1:xxxx"
-os.environ["all_proxy"] = "socks5://127.0.0.1:xxxx" 
-
-# GEMINI API 密钥（必需）
-GOOGLE_API_KEY = "your_api_key_here"
-
-# 目标网站配置 （必需）
-TARGET_BASE_URL = "复制学校内部网网址"
-TARGET_PAGE_URL = "复制学校公文通页面的网址"
-
-# 其他可选配置保持默认即可
-# 但我建议还是仔细看看需要的配置文件，默认可能会报错
-```
-
-### 获取 GEMINI API 密钥
-
-1. 访问 [GEMINI官网](https://gemini.google.com/app?hl=zh-cn)
-2. 注册账号并获取API密钥
-3. 在配置文件中设置 `GOOGLE_API_KEY`
-
-## 若更换其他厂商的API
-
-### 第一步-修改`config.py`文件
-
-你需要注释掉原有的 Google 配置，并根据新厂商的要求添加 API Key、Base URL（接口地址）以及模型名称。
-
-目前市面上绝大多数模型（DeepSeek、Kimi、阿里的通义千问等）都支持 OpenAI 格式的调用。
-
-```python
-import os
-
-# --- 代理配置 (保持不变) ---
-os.environ["http_proxy"] = "http://127.0.0.1:xxxx"
-os.environ["https_proxy"] = "http://127.0.0.1:xxxx"
-os.environ["all_proxy"] = "socks5://127.0.0.1:xxxx" 
-
-# --- 原 Google 配置 (建议注释掉) ---
-# GOOGLE_API_KEY = "your_google_api_key"
-# GEMINI_MODEL = "gemini-2.5-pro"
-# EMBEDDING_MODEL = "text-embedding-004"
-
-# --- 新厂商配置 (以 OpenAI/DeepSeek 为例) ---
-
-# 1. API 密钥
-# 如果是 OpenAI，填 sk-xxxx
-# 如果是 DeepSeek，填 deepseek-chat 的 key
-OPENAI_API_KEY = "sk-xxxxxxxxxxxxxxxxxxxxxxxx" 
-
-# 2. Base URL (接口地址)
-# OpenAI 官方默认: "https://api.openai.com/v1"
-# DeepSeek 官方: "https://api.deepseek.com"
-# 其他中转商: 根据服务商文档填写
-OPENAI_BASE_URL = "https://api.deepseek.com" 
-
-# 3. 模型名称配置
-# 对话模型名称 (例如: gpt-4o, deepseek-chat, moonshot-v1-8k)
-LLM_MODEL_NAME = "deepseek-chat"
-
-# 嵌入模型名称 (例如: text-embedding-3-small)
-# 注意：如果厂商不提供 Embedding 服务，需使用第三方或本地模型(如OLLAMA平台)
-EMBEDDING_MODEL_NAME = "text-embedding-3-small"
-
-# --- 目标网站配置 (保持不变) ---
-TARGET_BASE_URL = "..."
-TARGET_PAGE_URL = "..."
-```
-
-### 第二步-修改`pdf_qa.py`文件中的api配置
-
-根据实际调用的API，修改模块
-```python
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings #修改为其他API的库
-...
-...
-def get_response(memory, question):
-    file_path = Config.PDF_FILE_PATH
-  
-   #下方应修改
-    model = ChatGoogleGenerativeAI( 
-        model=Config.GEMINI_MODEL, 
-        api_key=Config.GOOGLE_API_KEY,
-        temperature=0
-    )
-    
-    embeddings_zh = GoogleGenerativeAIEmbeddings( 
-        model=Config.EMBEDDING_MODEL,
-        google_api_key=Config.GOOGLE_API_KEY
-    )
-...
-```
-
-例如：
-```python
-# 引入 OpenAI 的库（适用于 DeepSeek, Kimi 等）
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-
-# ...
-
-def get_response(memory, question):
-    # ...
-    
-    # 修改 LLM 初始化
-    model = ChatOpenAI(
-        model=Config.LLM_MODEL_NAME,
-        openai_api_key=Config.OPENAI_API_KEY,
-        openai_api_base=Config.OPENAI_BASE_URL, # 关键：指定 Base URL
-        temperature=0
-    )
-    
-    # 修改 Embedding 初始化
-    embeddings_zh = OpenAIEmbeddings(
-        model=Config.EMBEDDING_MODEL_NAME,
-        openai_api_key=Config.OPENAI_API_KEY,
-        openai_api_base=Config.OPENAI_BASE_URL
-    )
-```
-
-
-
 ## 使用方法
 
-### 启动系统
+### 方式一：交互式菜单
 ```bash
-source .venv/bin/activate  # Linux/macOS
-或 .venv\Scripts\activate  # Windows
-streamlit run main.py
+python run.py
 ```
 
-### 操作流程
+菜单选项：
+1. **爬取新闻标题和链接** - 提取列表页面的新闻摘要信息
+2. **爬取完整文章** - 获取每篇文章的完整详情内容
+3. **查看已爬取的新闻** - 列出所有已保存的文章
+4. **根据 URL 查询文章** - 通过URL搜索特定文章
+5. **根据标题搜索文章** - 通过关键词搜索文章
+6. **启动 Web 浏览界面** - 使用Streamlit浏览器查看文章
+7. **退出**
 
-1. **更新新闻**：
-   - 输入要爬取的页数（建议1-2页）
-   - 点击"更新文件"按钮
-   - 等待爬取完成
+Web界面功能：
+- 📋 左侧文章列表，支持搜索和分类/部门过滤
+- 📖 右侧文章详细内容展示
+- 🔍 实时搜索功能
+- 📁 按分类和部门过滤
+- 📱 响应式设计，适配不同屏幕
 
-2. **智能问答**：
-   - 在问题输入框中输入查询内容
-   - 点击"开始提问"按钮
-   - 系统基于PDF内容提供回答
+## 项目结构
+
+```
+HPF-SztuNewsScraper/
+├── run.py                 # 主程序入口
+├── requirements.txt       # pip依赖配置
+├── environment.yml        # conda环境配置
+├── README.md             # 项目说明
+├── .gitignore            # git忽略配置
+└── src/
+    ├── main.py           # 交互式菜单主程序
+    ├── scraper.py        # 爬取核心模块
+    ├── logger_config.py   # 日志配置
+    ├── extract_news.py    # 新闻提取工具
+    └── streamlit_app.py   # Web界面应用
+└── articles/             # 爬取的文章存储目录
+    └── index.json        # 文章索引文件
+```
+
+## 核心功能说明
+
+### 爬取流程
+
+1. **列表页爬取** - 从学校公文通获取新闻列表
+2. **详情页爬取** - 逐一访问每篇文章获取完整内容
+3. **索引管理** - 自动生成index.json索引文件，记录所有文章元数据
+4. **缓存检查** - 再次爬取时自动检查索引，避免重复下载已存在的文章
+5. **本地存储** - 文章以JSON格式保存在articles目录
+
+### 智能缓存机制
+
+- **索引文件查询** - 爬取前检查index.json中的URL记录
+- **文件存在验证** - 确认对应的文章文件是否存在
+- **自动跳过** - 若文章已缓存，自动跳过网络请求
+- **增量更新** - 只爬取和保存新增的文章
+
+### 文章文件 (articles/*.json)
+
+完整的文章数据包含：
+- 基本信息（标题、分类、部门等）
+- 完整内容
+- 元数据和时间戳
+
+## 注意事项
+
+- 爬取时请注意网站的访问频率限制，建议在空闲时间进行

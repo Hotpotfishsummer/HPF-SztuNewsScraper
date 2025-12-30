@@ -1,0 +1,78 @@
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Streamlit
+.streamlit/
+.streamlit_cache/
+streamlit_cache/
+
+# 项目相关
+News.json
+News.pdf
+*.json
+config.py
+
+# 但允许追踪.vscode配置
+!.vscode/
+!.vscode/**/*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# 本地垃圾文件夹
+.trash/
+tmp/
+articles/
+
+# 测试文件
+src/test/
