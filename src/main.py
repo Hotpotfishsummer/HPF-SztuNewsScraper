@@ -140,10 +140,11 @@ def main():
             search_by_title()
         elif choice == "6":
             import subprocess
+            import sys
             logger.info("🚀 启动 Streamlit Web 应用...")
             logger.info("📱 访问地址: http://localhost:8501")
             subprocess.run([
-                "streamlit", "run",
+                sys.executable, "-m", "streamlit", "run",
                 os.path.join(os.path.dirname(__file__), "streamlit_app.py")
             ])
         elif choice == "7":

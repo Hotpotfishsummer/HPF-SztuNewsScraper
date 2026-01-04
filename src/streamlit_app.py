@@ -77,12 +77,12 @@ st.markdown("""
     
     .article-content {
         line-height: 1.8;
-        color: #1a1a1a;
+        color: #ffffff;
         font-size: 1rem;
     }
     
     .article-content p {
-        color: #1a1a1a;
+        color: #ffffff;
         margin-bottom: 1rem;
     }
     

@@ -50,8 +50,7 @@ streamlit_cache/
 # 项目相关
 News.json
 News.pdf
-*.json
-config.py
+config.json
 
 # 但允许追踪.vscode配置
 !.vscode/
@@ -72,7 +71,8 @@ logs/
 # 本地垃圾文件夹
 .trash/
 tmp/
-articles/
 
+# articles 目录：忽略原始文章数据，但追踪 AI 分析结果
+articles/
 # 测试文件
 src/test/

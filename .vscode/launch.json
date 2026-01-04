@@ -10,6 +10,15 @@
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build",
             "justMyCode": false
+        },
+        {
+            "name": "Python: Run Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
         }
     ]
 }
