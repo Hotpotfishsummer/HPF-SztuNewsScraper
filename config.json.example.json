@@ -4,7 +4,16 @@
     "model": "gemini-2.5-flash",
     "temperature": 1.0,
     "max_tokens": 5000
-  },  "proxy": {
+  },
+  "dify": {
+    "enabled": false,
+    "api_endpoint": "http://localhost:8001/v1",
+    "api_key": "app-your-dify-api-key-here",
+    "timeout": 60,
+    "retry_times": 3,
+    "retry_delay": 2
+  },
+  "proxy": {
     "enabled": false,
     "protocol": "http",
     "host": "127.0.0.1",
@@ -12,7 +21,8 @@
     "username": "",
     "password": "",
     "url": "http://127.0.0.1:7890"
-  },  "user_profile": {
+  },
+  "user_profile": {
     "basic_info": {
       "name": "张三",
       "student_id": "2024001234",

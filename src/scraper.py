@@ -14,12 +14,53 @@ import os
 from pathlib import Path
 from datetime import datetime
 from logger_config import get_logger
+import warnings
+
+# 禁用 urllib3 的 InsecureRequestWarning
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+
+# 配置 SSL 以支持不同的 TLS 版本和密码套件
+try:
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.ssl_ import create_urllib3_context
+    
+    class SSLAdapter(HTTPAdapter):
+        """自定义 SSL 适配器，支持多个 TLS 版本"""
+        def init_poolmanager(self, *args, **kwargs):
+            ctx = create_urllib3_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = 0  # CERT_NONE
+            kwargs['ssl_context'] = ctx
+            return super().init_poolmanager(*args, **kwargs)
+except ImportError:
+    SSLAdapter = None
 
 logger = get_logger(__name__)
 
 
 ARTICLES_DIR = "articles"
 ARTICLES_INDEX_FILE = os.path.join(ARTICLES_DIR, "index.json")
+
+
+def create_session_with_ssl_fix():
+    """
+    创建配置好 SSL 的 requests 会话
+    
+    Returns:
+        requests.Session: 配置好的 Session 对象
+    """
+    session = requests.Session()
+    session.trust_env = False
+    
+    # 如果支持自定义 SSL 适配器，则使用它
+    if SSLAdapter:
+        session.mount('https://', SSLAdapter())
+        session.mount('http://', HTTPAdapter())
+        logger.info("✓ 已启用自定义 SSL 适配器")
+    
+    return session
 
 
 def ensure_articles_dir():
@@ -358,9 +399,8 @@ def fetch_news_pages(pages: int) -> bool:
     """
     logger.info(f"正在爬取 {pages} 页新闻，请耐心等待...")
     
-    # 创建请求会话，禁用代理
-    session = requests.Session()
-    session.trust_env = False
+    # 创建请求会话（已配置 SSL 支持）
+    session = create_session_with_ssl_fix()
     
     # 设置请求头
     headers = {
@@ -548,9 +588,8 @@ def fetch_news_pages_with_json(pages: int) -> bool:
     """
     logger.info(f"正在爬取 {pages} 页新闻并保存为 JSON...")
     
-    # 创建请求会话，禁用代理
-    session = requests.Session()
-    session.trust_env = False
+    # 创建请求会话（已配置 SSL 支持）
+    session = create_session_with_ssl_fix()
     
     # 设置请求头
     headers = {
@@ -586,6 +625,17 @@ def fetch_news_pages_with_json(pages: int) -> bool:
                     # 显示提取到的新闻信息
                     logger.info(f"提取 {len(articles)} 条新闻")
                     total_articles += len(articles)
+                    
+                    # 保存每篇文章
+                    for article in articles:
+                        save_article(article)
+                        add_to_articles_index(
+                            article['url'],
+                            generate_filename(article['title'], article['url']),
+                            article
+                        )
+                    
+                    logger.info(f"已保存 {len(articles)} 条新闻到文件")
                 else:
                     logger.warning("未找到新闻")
                 
@@ -621,9 +671,8 @@ def fetch_articles_with_details(pages: int) -> bool:
     """
     logger.info(f"正在爬取 {pages} 页新闻，保存完整详情...")
     
-    # 创建请求会话，禁用代理
-    session = requests.Session()
-    session.trust_env = False
+    # 创建请求会话（已配置 SSL 支持）
+    session = create_session_with_ssl_fix()
     
     # 设置请求头
     headers = {

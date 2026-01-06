@@ -121,6 +121,41 @@ class Config:
         return self.get('gemini.max_tokens', 1000)
     
     @property
+    def dify_enabled(self) -> bool:
+        """获取 Dify 是否启用"""
+        return self.get('dify.enabled', False)
+    
+    @property
+    def dify_api_endpoint(self) -> str:
+        """获取 Dify API 端点"""
+        return self.get('dify.api_endpoint', 'http://localhost:8001/v1')
+    
+    @property
+    def dify_api_key(self) -> str:
+        """获取 Dify API Key"""
+        return self.get('dify.api_key', '')
+    
+    @property
+    def dify_workflow_id(self) -> str:
+        """获取 Dify 工作流 ID"""
+        return self.get('dify.workflow_id', '')
+    
+    @property
+    def dify_timeout(self) -> int:
+        """获取 Dify 请求超时时间（秒）"""
+        return self.get('dify.timeout', 60)
+    
+    @property
+    def dify_retry_times(self) -> int:
+        """获取 Dify 重试次数"""
+        return self.get('dify.retry_times', 3)
+    
+    @property
+    def dify_retry_delay(self) -> int:
+        """获取 Dify 重试延迟（秒）"""
+        return self.get('dify.retry_delay', 2)
+    
+    @property
     def prompts(self) -> Dict[str, str]:
         """获取所有提示词"""
         return self.get('prompts', {})
