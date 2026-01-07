@@ -8,7 +8,7 @@
             "args": [
                 "-m",
                 "py_compile",
-                "run.py"
+                "src/main.py"
             ],
             "problemMatcher": [
                 "$python"

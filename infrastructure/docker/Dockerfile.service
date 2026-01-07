@@ -1,0 +1,45 @@
+# 服务版本 Dockerfile
+# 用于后台服务（定时调度器、API、Web UI）
+# 适合 Docker 容器部署和持续运行
+
+FROM python:3.11-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置环境变量
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONPATH=/app:/app/src:/app/services
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制 requirements.txt 并安装 Python 依赖
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# 复制项目文件
+COPY . .
+
+# 创建必要的目录
+RUN mkdir -p data/articles data/logs data/cache
+
+# 暴露端口
+# 8501: Streamlit Web UI
+EXPOSE 8501
+
+# 标签
+LABEL description="SZTU News Scraper - Service Version" \
+      version="2.0" \
+      mode="service"
+
+# 启动所有后台服务
+# 包括：定时调度器、FastAPI API、Streamlit Web UI
+CMD ["python", "service.py"]

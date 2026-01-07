@@ -9,8 +9,10 @@ dependencies:
     - requests>=2.31.0
     - beautifulsoup4>=4.12.0
     - chardet>=5.2.0
+    - python-dotenv>=1.0.0
     - streamlit>=1.28.0
     - google-genai>=0.3.0
+    - apscheduler>=3.10.0
     # 日志模块使用 Python 内置 logging，无需额外依赖
     # AI模型相关依赖（暂时禁用）
     # - langchain-google-genai>=0.0.6

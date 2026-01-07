@@ -50,7 +50,11 @@ streamlit_cache/
 # 项目相关
 News.json
 News.pdf
+
+# 配置文件（已迁移到 .env）
 config.json
+config.json.example.json
+schedule_config.json
 
 # 但允许追踪.vscode配置
 !.vscode/

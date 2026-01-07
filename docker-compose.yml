@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # CLI 版本容器 - 用于交互式爬虫操作
+  # ============================================================================
+  cli:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.cli
+    container_name: sztu-scraper-cli
+    image: sztu-scraper:cli-latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./articles:/app/articles
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    networks:
+      - scraper-network
+    stdin_open: true
+    tty: true
+    profiles:
+      - cli
+
+  # ============================================================================
+  # 服务版本容器 - 用于后台持续运行（所有服务）
+  # ============================================================================
+  service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    container_name: sztu-scraper-service
+    image: sztu-scraper:service-latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - SCHEDULER_ENABLED=true
+      - WEB_ENABLED=true
+    volumes:
+      - ./articles:/app/articles
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    ports:
+      - "8501:8501"  # Streamlit Web UI
+    networks:
+      - scraper-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - service
+
+  # ============================================================================
+  # 微服务版本容器 - 单独的服务
+  # ============================================================================
+  
+  # 定时任务调度器
+  scheduler:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.base
+    container_name: sztu-scraper-scheduler
+    image: sztu-scraper:scheduler-latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - SCHEDULER_ENABLED=true
+      - WEB_ENABLED=false
+    volumes:
+      - ./articles:/app/articles
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    networks:
+      - scraper-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "infrastructure/health-checks/scheduler-healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - microservices
+    command: ["python", "service.py", "--scheduler-only"]
+
+
+  # Streamlit Web UI 服务
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.base
+    container_name: sztu-scraper-web
+    image: sztu-scraper:web-latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - SCHEDULER_ENABLED=false
+      - WEB_ENABLED=true
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./articles:/app/articles
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    networks:
+      - scraper-network
+    depends_on:
+      scheduler:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - microservices
+    command: ["python", "service.py", "--web-only"]
+
+volumes:
+  # 数据持久化卷
+  articles_data:
+    driver: local
+  logs_data:
+    driver: local
+
+networks:
+  scraper-network:
+    driver: bridge

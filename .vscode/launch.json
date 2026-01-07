@@ -2,23 +2,45 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Run Main",
+            "name": "� CLI Mode",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/run.py",
+            "module": "src.main",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build",
-            "justMyCode": false
+            "justMyCode": false,
+            "presentation": {
+                "hidden": false,
+                "order": 1
+            }
         },
         {
-            "name": "Python: Run Current File",
+            "name": "⚡ Service Mode",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/entry/service.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": ["--info"],
+            "justMyCode": false,
+            "presentation": {
+                "hidden": false,
+                "order": 2
+            }
+        },
+        {
+            "name": "▶️ Run Current File",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "justMyCode": false
+            "justMyCode": false,
+            "presentation": {
+                "hidden": false,
+                "order": 3
+            }
         }
     ]
 }
+

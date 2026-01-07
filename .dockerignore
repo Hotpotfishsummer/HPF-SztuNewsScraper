@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv
+*.egg-info/
+dist/
+build/
+.egg
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Tests
+.pytest_cache
+.coverage
+htmlcov/
+
+# Documentation
+docs/_build
+site/
+
+# Logs
+logs/
+*.log
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 临时文件
+.trash
+tmp/
+temp/
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# 其他
+README.md
+CHANGELOG.md
+LICENSE
